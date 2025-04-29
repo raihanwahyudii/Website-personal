@@ -11,10 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('arsips', function (Blueprint $table) {
+        Schema::create('meetings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('rapat_id')->constrained();
-            $table->string('file_pdf');        
+            $table->string('title');
+            $table->date('date');
+            $table->string('location');
+            $table->text('participants');
+            $table->text('agenda');
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }
@@ -24,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('arsips');
+        Schema::dropIfExists('meetings');
     }
 };

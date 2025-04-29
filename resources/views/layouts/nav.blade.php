@@ -5,7 +5,8 @@
             Perpus Digital
         </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -80,7 +81,6 @@
 
     .navbar {
         background-color: #0275d8;
-        /* Primary blue */
         padding: 15px 20px;
     }
 
@@ -107,7 +107,6 @@
 
     .nav-link:hover {
         color: #fff !important;
-        /* Ensure hover text stays white */
         text-decoration: underline;
     }
 
@@ -117,5 +116,28 @@
 
     .btn:hover {
         transform: scale(1.05);
+    }
+
+    /* Media Query untuk responsif di layar kecil */
+    @media (max-width: 991px) {
+        .navbar-brand {
+            font-size: 1.2rem;
+            /* Ukuran font lebih kecil di layar mobile */
+        }
+
+        .navbar-toggler {
+            background-color: #0275d8;
+        }
+
+        .dropdown-menu {
+            width: 100%;
+            /* Dropdown melebar di layar kecil */
+        }
+
+        .nav-link {
+            padding: 10px;
+            font-size: 0.9rem;
+            /* Ukuran font sedikit lebih kecil */
+        }
     }
 </style>

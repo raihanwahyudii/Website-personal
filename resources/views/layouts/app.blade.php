@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{{ $title }}</title>
+
+    {{-- Title --}}
+    {{-- <title>{{ $title }}</title> --}}
 
     {{-- Google Fonts --}}
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -24,12 +26,9 @@
 
     {{-- SweetAlert2 --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    {{-- Tailwind --}}
-
 </head>
 
-<body style="font-family: 'Poppins', sans-serif">
+<body style="font-family: 'Poppins', sans-serif;">
 
     @auth
         @include('layouts.nav')
@@ -55,52 +54,51 @@
     @if (session('error'))
         <script>
             Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: '{{ session('error') }}',
-                confirmButtonColor: '#4f46e5'
+                icon: "error",
+                title: "Oops...",
+                text: "{{ session('error') }}",
+                confirmButtonColor: "#4f46e5"
             });
         </script>
     @endif
 
     {{-- Login Validation --}}
     <script>
-        const loginBtn = document.getElementById("loginBtn");
-        if (loginBtn) {
-            loginBtn.addEventListener("click", function(event) {
-                const email = document.getElementById("email").value.trim();
-                const password = document.getElementById("password").value.trim();
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginBtn = document.getElementById("loginBtn");
+            if (loginBtn) {
+                loginBtn.addEventListener("click", function(event) {
+                    const email = document.getElementById("email").value.trim();
+                    const password = document.getElementById("password").value.trim();
 
-                if (!email || !password) {
-                    event.preventDefault();
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Peringatan!',
-                        text: 'Email dan password wajib diisi!',
-                        confirmButtonColor: '#4f46e5'
-                    });
-                }
-            });
-        }
-    </script>
+                    if (!email || !password) {
+                        event.preventDefault();
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Peringatan!",
+                            text: "Email dan password wajib diisi!",
+                            confirmButtonColor: "#4f46e5"
+                        });
+                    }
+                });
+            }
 
-    {{-- Password Toggle --}}
-    <script>
-        const togglePassword = document.getElementById('togglePassword');
-        if (togglePassword) {
-            togglePassword.addEventListener('click', function() {
-                const passwordField = document.getElementById('password');
-                const eyeIcon = document.getElementById('eyeIcon');
+            const togglePassword = document.getElementById("togglePassword");
+            if (togglePassword) {
+                togglePassword.addEventListener("click", function() {
+                    const passwordField = document.getElementById("password");
+                    const eyeIcon = document.getElementById("eyeIcon");
 
-                if (passwordField.type === 'password') {
-                    passwordField.type = 'text';
-                    eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
-                } else {
-                    passwordField.type = 'password';
-                    eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
-                }
-            });
-        }
+                    if (passwordField.type === "password") {
+                        passwordField.type = "text";
+                        eyeIcon.classList.replace("fa-eye", "fa-eye-slash");
+                    } else {
+                        passwordField.type = "password";
+                        eyeIcon.classList.replace("fa-eye-slash", "fa-eye");
+                    }
+                });
+            }
+        });
     </script>
 
     {{-- Bootstrap JS --}}
