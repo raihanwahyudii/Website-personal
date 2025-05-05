@@ -37,7 +37,7 @@ Route::middleware('auth', 'role:admin')->group(function () {
 });
 
 // Pegawai
-Route::middleware('auth', 'role:pegawai')->group(function () {
+Route::middleware('auth', 'role:admin,pegawai')->group(function () {
     Route::resource('/pegawai', PegawaiController::class);
     Route::resource('/permissions', PermissionController::class);
     // Route::get('/exportpermissions-pdf', [PermissionController::class, 'exportPdf'])->name('permissions.export');

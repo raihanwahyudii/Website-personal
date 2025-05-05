@@ -78,13 +78,13 @@ class PermissionController extends Controller
     {
         // Pastikan relasi 'user' dan 'approver' dimuat
         $permission->load(['user', 'approver']);
-    
+
         // Generate PDF
         $pdf = Pdf::loadView('pegawai.exportpermissions-pdf', compact('permission'));
-    
+
         return $pdf->download('undangan_rapat_' . $permission->id . '.pdf');
     }
-    
+
 
 
 
