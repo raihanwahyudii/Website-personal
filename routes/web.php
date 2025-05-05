@@ -5,6 +5,7 @@ use App\Http\Controllers\AtasanController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\PegawaiController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RapatController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -38,9 +39,16 @@ Route::middleware('auth', 'role:admin')->group(function () {
 // Pegawai
 Route::middleware('auth', 'role:pegawai')->group(function () {
     Route::resource('/pegawai', PegawaiController::class);
+    Route::resource('/permissions', PermissionController::class);
+    // Route::get('/exportpermissions-pdf', [PermissionController::class, 'exportPdf'])->name('permissions.export');
+    Route::get('/exportpermissions-pdf/{permission}', [PermissionController::class, 'exportPdf'])->name('permissions.export');
+    // Route::get('/databukupdf', [BukuController::class,'eksporpdf'])->name('databukupdf');
 });
 
 // Atasan
 Route::middleware('auth', 'role:atasan')->group(function () {
     Route::resource('/atasan', AtasanController::class);
+    Route::get('/permissionsatasan', [PermissionController::class, 'indexAtasan'])->name('atasan.permissions.index');
+    Route::patch('/permissions/{permission}/approve', [PermissionController::class, 'approve'])->name('atasan.permissions.approve');
+    Route::patch('/permissions/{permission}/reject', [PermissionController::class, 'reject'])->name('atasan.permissions.reject');
 });
