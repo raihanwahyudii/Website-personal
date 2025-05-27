@@ -1,109 +1,109 @@
-<!DOCTYPE html>
-<html lang="en">
-
+<!doctype html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@yield('title', 'Dashboard') - {{ config('app.name', 'Hafalan Tracker') }}</title>
 
-    {{-- Title --}}
-    {{-- <title>{{ $title }}</title> --}}
+  
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    {{-- Google Fonts --}}
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
-    {{-- Bootstrap CSS --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    {{-- Bootstrap Icons --}}
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
-    {{-- Font Awesome --}}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body {
+            background-color:rgb(248, 250, 248);
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+    </style>
 
-    {{-- Animate.css --}}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-
-    {{-- SweetAlert2 --}}
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @yield('head')
 </head>
+<body>
+<nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url('/') }}">
+            {{ config('app.name', 'Hafalan Tracker') }}
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-<body style="font-family: 'Poppins', sans-serif;">
+        <div class="collapse navbar-collapse" id="navbarNav">
+            @auth
+                <ul class="navbar-nav me-auto">
+                    {{-- Menu berdasarkan role --}}
+                    @if(auth()->user()->role === 'admin')
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.dashboard') }}">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.users.index') }}">
+                                <i class="bi bi-people"></i> Kelola Santri & Ustad
+                            </a>
+                        </li>
+                    @elseif(auth()->user()->role === 'ustad')
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('setoran.index') }}">
+                                <i class="bi bi-journal-text"></i> Setoran Santri
+                            </a>
+                        </li>
+                    @elseif(auth()->user()->role === 'santri')
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('santri.setoran') }}">
+                                <i class="bi bi-bookmark-check"></i> Hafalan Saya
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('santri.download') }}">
+                                <i class="bi bi-file-earmark-pdf"></i> Unduh PDF
+                            </a>
+                        </li>
+                    @endif
+                </ul>
 
-    @auth
-        @include('layouts.nav')
-    @endauth
-
-    <div class="container mt-4">
-        @yield('content')
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item d-flex align-items-center me-2 text-muted small">
+                        Login sebagai: <strong class="ms-1">{{ auth()->user()->name }}</strong> ({{ auth()->user()->role }})
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button">
+                            <i class="bi bi-person-circle"></i> {{ auth()->user()->name }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="{{ route('logout') }}"
+                                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    <i class="bi bi-box-arrow-right"></i> Logout
+                                </a>
+                            </li>
+                        </ul>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                            @csrf
+                        </form>
+                    </li>
+                </ul>
+            @endauth
+        </div>
     </div>
+</nav>
 
-    {{-- Flash Messages --}}
-    @if (session('success'))
-        <script>
-            Swal.fire({
-                title: "Berhasil!",
-                text: "{{ session('success') }}",
-                icon: "success",
-                confirmButtonColor: "#3085d6",
-                confirmButtonText: "OK"
-            });
-        </script>
+<div class="container mt-4">
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    @if (session('error'))
-        <script>
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "{{ session('error') }}",
-                confirmButtonColor: "#4f46e5"
-            });
-        </script>
-    @endif
+    @yield('content')
+</div>
 
-    {{-- Login Validation --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const loginBtn = document.getElementById("loginBtn");
-            if (loginBtn) {
-                loginBtn.addEventListener("click", function(event) {
-                    const email = document.getElementById("email").value.trim();
-                    const password = document.getElementById("password").value.trim();
 
-                    if (!email || !password) {
-                        event.preventDefault();
-                        Swal.fire({
-                            icon: "warning",
-                            title: "Peringatan!",
-                            text: "Email dan password wajib diisi!",
-                            confirmButtonColor: "#4f46e5"
-                        });
-                    }
-                });
-            }
-
-            const togglePassword = document.getElementById("togglePassword");
-            if (togglePassword) {
-                togglePassword.addEventListener("click", function() {
-                    const passwordField = document.getElementById("password");
-                    const eyeIcon = document.getElementById("eyeIcon");
-
-                    if (passwordField.type === "password") {
-                        passwordField.type = "text";
-                        eyeIcon.classList.replace("fa-eye", "fa-eye-slash");
-                    } else {
-                        passwordField.type = "password";
-                        eyeIcon.classList.replace("fa-eye-slash", "fa-eye");
-                    }
-                });
-            }
-        });
-    </script>
-
-    {{-- Bootstrap JS --}}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+@yield('scripts')
 </body>
-
 </html>

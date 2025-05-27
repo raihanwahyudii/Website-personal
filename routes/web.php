@@ -1,54 +1,75 @@
 <?php
 
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AtasanController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\MeetingController;
-use App\Http\Controllers\PegawaiController;
-use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\RapatController;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\SetoranController;
+use App\Http\Controllers\SantriController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AdminController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
+// Root route: jika sudah login redirect ke home, jika belum redirect ke login
 Route::get('/', function () {
-    return view('welcome');
+    if (auth()->check()) {
+        return redirect()->route('home');
+    }
+    return redirect()->route('login');
 });
 
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+// Route auth bawaan Laravel (login, register, logout, dll)
+Auth::routes();
 
-// Admin
-Route::middleware('auth', 'role:admin')->group(function () {
-    Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
-    Route::resource('meetings', MeetingController::class);
-    Route::get('meetings/{meeting}/pdf', [MeetingController::class, 'downloadPdf'])->name('meetings.pdf');
+// Setelah login, redirect ke home
+Route::get('/home', function () {
+    return redirect()->route('dashboard.redirect');
+})->middleware('auth')->name('home');
+
+// Redirect dashboard sesuai role user
+Route::get('/dashboard-redirect', function () {
+    $user = auth()->user();
+
+    if ($user->role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    } elseif ($user->role === 'ustad') {
+        return redirect()->route('setoran.index');
+    } elseif ($user->role === 'santri') {
+        return redirect()->route('santri.setoran');
+    }
+
+    abort(403, 'Role tidak dikenali.');
+})->middleware('auth')->name('dashboard.redirect');
+
+// Routes untuk Ustadz (role ustad)
+Route::middleware(['auth', 'role:ustad'])->group(function () {
+    Route::resource('setoran', SetoranController::class);
 });
 
-// Pegawai
-Route::middleware('auth', 'role:admin,pegawai')->group(function () {
-    Route::resource('/pegawai', PegawaiController::class);
-    Route::resource('/permissions', PermissionController::class);
-    // Route::get('/exportpermissions-pdf', [PermissionController::class, 'exportPdf'])->name('permissions.export');
-    Route::get('/exportpermissions-pdf/{permission}', [PermissionController::class, 'exportPdf'])->name('permissions.export');
-    // Route::get('/databukupdf', [BukuController::class,'eksporpdf'])->name('databukupdf');
+// Routes untuk Santri (role santri)
+Route::middleware(['auth', 'role:santri'])->group(function () {
+    Route::get('/santri/setoran', [SantriController::class, 'index'])->name('santri.setoran');
+    Route::get('/santri/setoran/download', [SantriController::class, 'downloadPdf'])->name('santri.download');
 });
 
-// Atasan
-Route::middleware('auth', 'role:atasan')->group(function () {
-    Route::resource('/atasan', AtasanController::class);
-    Route::get('/permissionsatasan', [PermissionController::class, 'indexAtasan'])->name('atasan.permissions.index');
-    Route::patch('/permissions/{permission}/approve', [PermissionController::class, 'approve'])->name('atasan.permissions.approve');
-    Route::patch('/permissions/{permission}/reject', [PermissionController::class, 'reject'])->name('atasan.permissions.reject');
+// Routes untuk Admin (role admin) dengan prefix dan group name admin.*
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+
+    // Kelola Santri
+    Route::get('/santri', [UserController::class, 'santri'])->name('santri.index');
+
+    // Kelola Ustadz
+    Route::get('/ustad', [UserController::class, 'ustad'])->name('ustad.index');
+
+    // Daftar User
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+
+    // Tambah User (Santri/Ustadz)
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+
+    // Edit & Update User
+    Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
+
+    // Hapus User
+    Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 });

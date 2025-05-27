@@ -1,73 +1,81 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="d-flex justify-content-center align-items-center mb-4"
-        style="min-height: 100vh; background: linear-gradient(135deg, #ff9a9e, #fad0c4);">
-        <div class="card shadow-lg p-4" style="border-radius: 20px; max-width: 400px; width: 100%; background: #ffffff;">
-            <div class="text-center">
-                <h2 class="mb-3" style="font-weight: bold; color: #333;">Login</h2>
-                <p class="mb-4" style="color: #666;">Welcome back! Please login to your account.</p>
-            </div>
-
-            @if (session('error'))
-                <div class="alert alert-danger">
-                    {{ session('error') }}
-                </div>
-            @endif
-
-            <form method="POST" action="{{ route('login') }}">
-                @csrf
-
-                <div class="mb-3">
-                    <label for="email" class="form-label" style="color: #555;">Email Address</label>
-                    <input type="email" name="email" id="email" class="form-control" value="{{ old('email') }}"
-                        style="border-radius: 30px; background: #f9f9f9;" placeholder="Enter your email" required>
-                    @error('email')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
-
-                <div class="mb-3">
-                    <label for="password" class="form-label" style="color: #555;">Password</label>
-                    <input type="password" name="password" id="password" class="form-control"
-                        style="border-radius: 30px; background: #f9f9f9;" placeholder="Enter your password" required>
-                    @error('password')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <input type="checkbox" id="remember-me" name="remember">
-                        <label for="remember-me" class="ms-1" style="color: #777;">Remember Me</label>
-                    </div>
-                    <a href="#" class="text-decoration-none" style="color: #ff6f61;">Forgot Password?</a>
-                </div>
-
-                <button type="submit" class="btn btn-primary w-100"
-                    style="border-radius: 30px; background: linear-gradient(135deg, #ff758c, #ff7eb3); border: none;">
-                    Login
-                </button>
-            </form>
-
-            <hr class="my-4">
-            <div class="text-center">
-                <p style="color: #777;">Or login with</p>
-                <div class="d-flex justify-content-center">
-                    <button class="btn btn-outline-secondary me-2" style="border-radius: 50px; width: 50px; height: 50px;">
-                        <i class="bi bi-facebook" style="font-size: 20px; color: #3b5998;"></i>
-                    </button>
-                    <button class="btn btn-outline-secondary me-2" style="border-radius: 50px; width: 50px; height: 50px;">
-                        <i class="bi bi-google" style="font-size: 20px; color: #db4437;"></i>
-                    </button>
-                    <button class="btn btn-outline-secondary" style="border-radius: 50px; width: 50px; height: 50px;">
-                        <i class="bi bi-twitter" style="font-size: 20px; color: #1da1f2;"></i>
-                    </button>
-                </div>
-            </div>
-
-            <p class="mt-4 text-center" style="color: #777;">Don't have an account? <a href="#"
-                    class="text-decoration-none" style="color: #ff6f61;">Sign Up</a></p>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-5 col-lg-4">
+      <div class="card shadow-sm border rounded-4">
+        
+        <div class="card-header bg-danger text-white text-center fs-4 fw-semibold rounded-top">
+          {{ __('Login') }}
         </div>
+        
+        <div class="card-body p-4">
+          <form method="POST" action="{{ route('login') }}" novalidate>
+            @csrf
+
+            <div class="mb-3">
+              <label for="email" class="form-label fw-semibold text-secondary">{{ __('Email Address') }}</label>
+              <input
+                id="email"
+                type="email"
+                name="email"
+                value="{{ old('email') }}"
+                required
+                autofocus
+                autocomplete="email"
+                placeholder="you@example.com"
+                class="form-control form-control-lg @error('email') is-invalid @enderror"
+              >
+              @error('email')
+                <div class="invalid-feedback">{{ $message }}</div>
+              @enderror
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label fw-semibold text-secondary">{{ __('Password') }}</label>
+              <input
+                id="password"
+                type="password"
+                name="password"
+                required
+                autocomplete="current-password"
+                placeholder="••••••••"
+                class="form-control form-control-lg @error('password') is-invalid @enderror"
+              >
+              @error('password')
+                <div class="invalid-feedback">{{ $message }}</div>
+              @enderror
+            </div>
+
+            <div class="mb-4 form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                id="remember"
+                name="remember"
+                {{ old('remember') ? 'checked' : '' }}
+              >
+              <label class="form-check-label text-secondary" for="remember">
+                {{ __('Remember Me') }}
+              </label>
+            </div>
+
+            <div class="d-grid gap-3">
+              <button type="submit" class="btn btn-danger btn-lg fw-semibold shadow-sm">
+                {{ __('Login') }}
+              </button>
+
+              @if (Route::has('password.request'))
+                <a href="{{ route('password.request') }}" class="text-center text-danger text-decoration-none fw-semibold small">
+                  {{ __('Forgot Your Password?') }}
+                </a>
+              @endif
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
+  </div>
+</div>
 @endsection

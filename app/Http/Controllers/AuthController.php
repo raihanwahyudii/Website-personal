@@ -9,81 +9,81 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function showLoginForm()
+    // Tampilkan form login
+    public function showLogin()
     {
-        if (Auth::check()) {
-            return $this->redirectToDashboard();
-        }
-
-        return view('auth.login', [
-            'title' =>  'Halaman Masuk'
-        ]);
+        return view('auth.login');
     }
 
+    // Proses login
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email'     =>  'required|email',
-            'password'  =>  'required',
+            'email' => ['required', 'email'],
+            'password' => ['required'],
         ]);
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            $user = Auth::user();
 
-            return match ($user->role) {
-                'admin' => redirect()->route('admin.index')->with('success', 'Selamat Datang Admin!'),
-                'atasan' => redirect()->route('atasan.index')->with('success', 'Selamat Datang atasan!'),
-                default => redirect()->route('pegawai.index')->with('success', 'Selamat Datang pegawai!'),
-            };
+            $role = auth()->user()->role;
+
+            if ($role === 'santri') {
+                return redirect()->intended(route('santri.hafalan.index'));
+            } elseif ($role === 'pembimbing') {
+                return redirect()->intended(route('pembimbing.dashboard'));
+            } else {
+                return redirect()->intended('/');
+            }
         }
-        return back()->withInput()->with('error', 'ada yang salah');
+
+        return back()->withErrors([
+            'email' => 'Email atau password salah',
+        ])->withInput($request->only('email'));
     }
 
-    public function redirectToDashboard()
+    // Tampilkan form register
+    public function showRegister()
     {
-        $user = Auth::user();
-        return match ($user->role) {
-            'admin' => redirect()->route('admin.index')->with('success', 'Welcome back, Admin!'),
-            'atasan' => redirect()->route('atasan.index')->with('success', 'Welcome back, atasan!'),
-            default => redirect()->route('pegawai.index')->with('error', 'Invalid role!'),
-        };
+        return view('auth.register');
     }
 
+    // Proses registrasi user baru
+    public function register(Request $request)
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'unique:users,email'],
+            'password' => ['required', 'confirmed', 'min:6'],
+            'role' => ['required', 'in:santri,pembimbing'],
+        ]);
+
+        // Hash password sebelum simpan
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'role' => $data['role'],
+        ]);
+
+        Auth::login($user);
+
+        // Redirect sesuai role
+        if ($user->role === 'santri') {
+            return redirect()->route('santri.hafalan.index');
+        } else {
+            return redirect()->route('pembimbing.dashboard');
+        }
+    }
+
+    // Logout
     public function logout(Request $request)
     {
         Auth::logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')->with('success', 'Keluar Berhasil');
-    }
-
-    public function showRegisterForm()
-    {
-        if (Auth::check()) {
-            return redirect()->route('dashboard');
-        }
-        return view('auth.register', [
-            'title' => 'Halaman Pendaftaran'
-        ]);
-    }
-
-    public function register(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6|confirmed',
-        ]);
-
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'pegawai'
-        ]);
-
-        return redirect()->route('login')->with('success', 'Daftar berhasil, silakan masuk!');
+        return redirect('/login');
     }
 }
