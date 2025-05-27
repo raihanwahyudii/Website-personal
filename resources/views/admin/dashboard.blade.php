@@ -21,7 +21,7 @@
             <div class="card text-white bg-primary shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">Jumlah Santri</h5>
-                    <p class="display-4 mb-0">{{ $jumlahSantri ?? '-' }}</p>
+                    <p class="display-4 mb-0">{{ $jumlahSantri ?? '7' }}</p>
                 </div>
             </div>
         </div>
@@ -29,11 +29,10 @@
             <div class="card text-white bg-secondary shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">Jumlah Ustadz</h5>
-                    <p class="display-4 mb-0">{{ $jumlahUstadz ?? '-' }}</p>
+                    <p class="display-4 mb-0">{{ $jumlahUstadz ?? '100' }}</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 @endsection
-a
